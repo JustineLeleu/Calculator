@@ -33,6 +33,7 @@ public class Frame {
             btn.addActionListener(e -> EventListener(digits));
         }
         pnl.setBackground(new Color(15, 15,15));
+        label.setForeground(Color.white);
         frame.add(pnl);
         frame.setSize(300, 400);
         frame.setResizable(false);
@@ -55,9 +56,20 @@ public class Frame {
         }
         
     }
+    
+    public void reset()
+    {
+        history = "";
+        opeStock = "";
+        ope.setResult(0);
+        stockage = "";
+    }
+    
     String history = "";
     String stockage = "";
     String opeStock;
+    String lastOpe;
+    String lastDigit;
     public void EventListener(String digits){
         String result;
         switch (digits) {
@@ -70,8 +82,10 @@ public class Frame {
             case "7":
             case "8":
             case "9":
+                if (opeStock == "=") reset();
                 stockage += digits;
                 label.setText(stockage);
+                historic.setText(history);
                 break;
             case "+":
                 result = opeStockMethod();
@@ -106,7 +120,33 @@ public class Frame {
                 opeStock = digits;
                 break;
             case "=":
-            
+                
+                if (opeStock == "=")
+                {
+                    String lastResult = stockage;
+                    opeStock = lastOpe;
+                    stockage = lastDigit;
+                    history = lastResult + lastOpe + lastDigit + "=";
+                    historic.setText(history);
+                    result = opeStockMethod();
+                    label.setText(result);
+                    opeStock = "=";
+                    stockage = result;
+                }
+                else
+                {
+                    history += stockage + digits;
+                    historic.setText(history);
+                    result = opeStockMethod();
+                    label.setText(result);
+                    lastOpe = opeStock;
+                    lastDigit = stockage;
+                    opeStock = "=";
+                    stockage = result;
+                    System.out.println(lastOpe);
+                }
+                
+            break;
         }
     }
 }
