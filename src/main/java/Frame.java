@@ -4,18 +4,21 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.text.DecimalFormat;
 import java.util.Objects;
 
 
 public class Frame {
-    static JLabel label;
-    static JLabel historic;
-    
-    Operator ope;
+    static JLabel label;        // label for result/given digits
+    static JLabel historic;     // label for operations historic
+    Operator ope;               // bean for the operators methods
+
     Frame(){
         ApplicationContext context = new AnnotationConfigApplicationContext(Operator.class);
         this.ope = context.getBean(Operator.class);
     }
+
+    // Method to set the frame with labels and buttons
     public void calculator(){
         JFrame frame = new JFrame("Calculator");
         JPanel pnl = new JPanel();
@@ -75,39 +78,69 @@ public class Frame {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
+
+    // Method to call the correct operator method
     public String opeStockMethod(){
-        if (Objects.equals(opeStock, "+")) {
-           return String.valueOf(ope.addition(Double.parseDouble(stockage)));
-        } else if (Objects.equals(opeStock, "-")) {
-            return String.valueOf(ope.subtraction(Double.parseDouble(stockage)));
-        } else if (Objects.equals(opeStock, "X")){
-            return String.valueOf(ope.multiplication(Double.parseDouble(stockage)));
-        } else if (Objects.equals(opeStock, "%")){
-            return String.valueOf(ope.division(Double.parseDouble(stockage)));
-        } else {
-            ope.setResult(Double.parseDouble(stockage));
-            return stockage;
-        }
+        DecimalFormat format = new DecimalFormat("0.#");
+        return switch (opeStock) {
+            case "+" -> format.format(ope.addition(Double.parseDouble(stockage)));
+            case "-" -> format.format(ope.subtraction(Double.parseDouble(stockage)));
+            case "X" -> format.format(ope.multiplication(Double.parseDouble(stockage)));
+            case "%" -> format.format(ope.division(Double.parseDouble(stockage)));
+            case null, default -> {
+                ope.setResult(Double.parseDouble(stockage));
+                yield stockage;
+            }
+        };
         
     }
-    
+
+    // Method to reset data
     public void reset()
     {
         history = " ";
         opeStock = null;
         ope.setResult(0);
         stockage = " ";
-        lastOpe = null;
+    }
+
+    // Method to deal with an operator button pressed
+    public void operations(String button)
+    {
+        if (Objects.equals(opeStock, "=")){
+            history = " ";
+            stockage = ope.getResult();
+        }
+
+        if (Objects.equals(stockage, " ") && !Objects.equals(history, " "))
+        {
+            opeStock = button;
+            history = history.substring(0, history.length() - 1) + button;
+            historic.setText(history);
+            return;
+        }
+
+        if (Objects.equals(history, " ") && Objects.equals(stockage, " ")) stockage = "0";
+
+        history += stockage+button;
+        historic.setText(history);
+        String result = opeStockMethod();
+        label.setText(result);
+        lastDigit = stockage;
+        stockage = " ";
+        opeStock = button;
     }
     
-    String history = " ";
-    String stockage = " ";
-    String opeStock;
-    String lastOpe;
-    String lastDigit;
-    public void EventListener(String digits){
+    String history = " ";           // variable to stock historic
+    String stockage = " ";          // variable to stock result/digits
+    String opeStock;                // variable to stock the last operator called
+    String lastOpe;                 // variable to stock previous operator
+    String lastDigit;               // variable to stock the last digits entered
+
+    // Method dealing with button pressed event listener
+    public void EventListener(String button){
         String result;
-        switch (digits) {
+        switch (button) {
             case "1":
             case "2":
             case "3":
@@ -119,90 +152,20 @@ public class Frame {
             case "9":
                 if (Objects.equals(opeStock, "=")) reset();
                 if (stockage.equals(" ")) stockage = "";
-                stockage += digits;
+                stockage += button;
                 label.setText(stockage);
                 historic.setText(history);
                 break;
             case "+":
-                if (Objects.equals(stockage, " ") && !Objects.equals(history, " "))
-                {
-                    opeStock = digits;
-                    history = history.substring(0, history.length() - 1) + digits;
-                    historic.setText(history);
-                    return;
-                }
-
-                if (Objects.equals(history, " ") && Objects.equals(stockage, " ")) stockage = "0";
-
-                result = opeStockMethod();
-                history += stockage+digits;
-                historic.setText(history);
-                label.setText(result);
-                lastDigit = stockage;
-                stockage = " ";
-                opeStock = digits;
-                break;
             case "-":
-                if (Objects.equals(stockage, " ") && !Objects.equals(history, " "))
-                {
-                    opeStock = digits;
-                    history = history.substring(0, history.length() - 1) + digits;
-                    historic.setText(history);
-                    return;
-                }
-
-                if (Objects.equals(history, " ") && Objects.equals(stockage, " ")) stockage = "0";
-
-                result = opeStockMethod();
-                history += stockage+digits;
-                historic.setText(history);
-                label.setText(result);
-                lastDigit = stockage;
-                stockage = " ";
-                opeStock = digits;
-                break;
             case "X":
-                if (Objects.equals(stockage, " ") && !Objects.equals(history, " "))
-                {
-                    opeStock = digits;
-                    history = history.substring(0, history.length() - 1) + digits;
-                    historic.setText(history);
-                    return;
-                }
-
-                if (Objects.equals(history, " ") && Objects.equals(stockage, " ")) stockage = "0";
-
-                history += stockage+digits;
-                historic.setText(history);
-                result = opeStockMethod();
-                label.setText(result);
-                lastDigit = stockage;
-                stockage = " ";
-                opeStock = digits;
-                break;
             case "%":
-                if (Objects.equals(stockage, " ") && !Objects.equals(history, " "))
-                {
-                    opeStock = digits;
-                    history = history.substring(0, history.length() - 1) + digits;
-                    historic.setText(history);
-                    return;
-                }
-
-                if (Objects.equals(history, " ") && Objects.equals(stockage, " ")) stockage = "0";
-
-                history += stockage+digits;
-                historic.setText(history);
-                result = opeStockMethod();
-                label.setText(result);
-                lastDigit = stockage;
-                stockage = " ";
-                opeStock = digits;
+                operations(button);
                 break;
             case "=":
                 if (Objects.equals(stockage, " "))
                 {
-                    stockage = String.valueOf(ope.result);
+                    stockage = ope.getResult();
                     history += stockage + "=";
                     historic.setText(history);
                     result = opeStockMethod();
@@ -230,7 +193,6 @@ public class Frame {
                 }
                 if (opeStock == null)
                 {
-                    System.out.println("empty");
                     history += stockage + "=";
                     historic.setText(history);
                     lastOpe = opeStock;
@@ -240,7 +202,7 @@ public class Frame {
                 }
                 else
                 {
-                    history += stockage + digits;
+                    history += stockage + button;
                     historic.setText(history);
                     result = opeStockMethod();
                     label.setText(result);
@@ -248,7 +210,6 @@ public class Frame {
                     lastDigit = stockage;
                     opeStock = "=";
                     stockage = result;
-                    System.out.println(lastOpe);
                 }
                 
             break;
@@ -280,7 +241,6 @@ public class Frame {
                 }
                 else{
                     stockage = "-" + stockage;
-                    System.out.println(stockage);
                     label.setText(stockage);
                 }
                 break;

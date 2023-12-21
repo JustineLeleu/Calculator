@@ -1,10 +1,12 @@
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
+
 @Service
 @Scope("singleton")
 public class Operator {
-  double result;
+  private double result;
   Operator(){
     this.result = 0;
   }
@@ -27,5 +29,11 @@ public class Operator {
   public double division(double x){
     result /= x;
     return result;
+  }
+
+  public String getResult()
+  {
+    DecimalFormat format = new DecimalFormat("0.#");
+    return format.format(result);
   }
 }
