@@ -2,8 +2,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseEvent;
 
 
 public class Frame {
@@ -19,36 +19,57 @@ public class Frame {
         JFrame frame = new JFrame("Calculator");
         JPanel pnl = new JPanel();
         pnl.setLayout(new BoxLayout(pnl, BoxLayout.Y_AXIS));
-//        pnl.setBorder(new EmptyBorder(4,4,4,4));
         JPanel grid = new JPanel(new GridLayout(5,4));
-//        JTextArea screen = new JTextArea(2,25);
-//        pnl.add(screen, BorderLayout.NORTH);
         label = new JLabel(" ");
+        label.setFont(new Font("Serif", Font.PLAIN, 25));
         historic = new JLabel(" ");
-//        label.setBounds(50,50, 150,20);
         pnl.add(historic);
-//        screen.add(historic);
         pnl.add(label);
         String digitsText[] = {"CE", "C", "X", "%",
                                 "7", "8", "9", "<-",
                                 "4", "5", "6", "-",
-                "1", "2","3","+",
-                "+/-", "0", ",", "="};
+                                "1", "2","3","+",
+                                "+/-", "0", ",", "="};
         
         for (String digits : digitsText){
             JButton btn = new JButton(digits);
             grid.add(btn);
             btn.setForeground(Color.white);
             btn.setBackground(Color.black);
+            btn.setBorderPainted(false);
+            btn.setFocusPainted(false);
             btn.addActionListener(e -> EventListener(digits));
+            btn.addMouseListener(new java.awt.event.MouseAdapter(){
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    btn.setBackground(new Color(15, 15,15));
+                }
+                
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    btn.setBackground(Color.BLACK);
+                }
+                
+                @Override
+                public void mousePressed(MouseEvent e){
+                    btn.setBackground(new Color(15,15,15));
+                    btn.setContentAreaFilled(false);
+                }
+                
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    btn.setContentAreaFilled(true);
+                }
+            });
+            
         }
         pnl.setBackground(new Color(15, 15,15));
+        grid.setBackground(Color.BLACK);
         label.setForeground(Color.white);
         historic.setForeground(new Color(147, 149, 151));
         frame.add(pnl);
         pnl.add(grid);
         frame.setSize(300, 400);
-//        frame.setResizable(false);
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
