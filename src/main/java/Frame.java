@@ -118,18 +118,21 @@ public class Frame {
             case "8":
             case "9":
                 if (Objects.equals(opeStock, "=")) reset();
+                if (stockage.equals(" ")) stockage = "";
                 stockage += digits;
                 label.setText(stockage);
                 historic.setText(history);
                 break;
             case "+":
-                if (Objects.equals(stockage, " "))
+                if (Objects.equals(stockage, " ") && !Objects.equals(history, " "))
                 {
                     opeStock = digits;
                     history = history.substring(0, history.length() - 1) + digits;
                     historic.setText(history);
                     return;
                 }
+
+                if (Objects.equals(history, " ") && Objects.equals(stockage, " ")) stockage = "0";
 
                 result = opeStockMethod();
                 history += stockage+digits;
@@ -140,13 +143,15 @@ public class Frame {
                 opeStock = digits;
                 break;
             case "-":
-                if (Objects.equals(stockage, " "))
+                if (Objects.equals(stockage, " ") && !Objects.equals(history, " "))
                 {
                     opeStock = digits;
                     history = history.substring(0, history.length() - 1) + digits;
                     historic.setText(history);
                     return;
                 }
+
+                if (Objects.equals(history, " ") && Objects.equals(stockage, " ")) stockage = "0";
 
                 result = opeStockMethod();
                 history += stockage+digits;
@@ -157,13 +162,15 @@ public class Frame {
                 opeStock = digits;
                 break;
             case "X":
-                if (Objects.equals(stockage, " "))
+                if (Objects.equals(stockage, " ") && !Objects.equals(history, " "))
                 {
                     opeStock = digits;
                     history = history.substring(0, history.length() - 1) + digits;
                     historic.setText(history);
                     return;
                 }
+
+                if (Objects.equals(history, " ") && Objects.equals(stockage, " ")) stockage = "0";
 
                 history += stockage+digits;
                 historic.setText(history);
@@ -174,13 +181,15 @@ public class Frame {
                 opeStock = digits;
                 break;
             case "%":
-                if (Objects.equals(stockage, " "))
+                if (Objects.equals(stockage, " ") && !Objects.equals(history, " "))
                 {
                     opeStock = digits;
                     history = history.substring(0, history.length() - 1) + digits;
                     historic.setText(history);
                     return;
                 }
+
+                if (Objects.equals(history, " ") && Objects.equals(stockage, " ")) stockage = "0";
 
                 history += stockage+digits;
                 historic.setText(history);
@@ -243,6 +252,49 @@ public class Frame {
                 }
                 
             break;
+
+            case "<-":
+                if (Objects.equals(stockage, " ")) return;
+                stockage = stockage.substring(0, stockage.length() - 1);
+                if (stockage.isEmpty()) stockage = " ";
+                label.setText(stockage);
+                break;
+
+            case ",":
+                if (Objects.equals(stockage, " ")){
+                    stockage = "0.";
+                    label.setText(stockage);
+                    return;
+                }
+                if (!stockage.contains(".")){
+                    stockage += ".";
+                    label.setText(stockage);
+                }
+                break;
+
+            case "+/-":
+                if (Objects.equals(stockage, " ")) return;
+                if (stockage.contains("-")){
+                    stockage = stockage.substring(1);
+                    label.setText(stockage);
+                }
+                else{
+                    stockage = "-" + stockage;
+                    System.out.println(stockage);
+                    label.setText(stockage);
+                }
+                break;
+
+            case "C":
+                reset();
+                label.setText(stockage);
+                historic.setText(history);
+                break;
+
+            case "CE":
+                stockage = " ";
+                label.setText(stockage);
+                break;
         }
     }
 }
