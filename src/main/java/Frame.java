@@ -4,6 +4,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.util.Objects;
 
 
 public class Frame {
@@ -25,7 +26,7 @@ public class Frame {
         historic = new JLabel(" ");
         pnl.add(historic);
         pnl.add(label);
-        String digitsText[] = {"CE", "C", "X", "%",
+        String[] digitsText = {"CE", "C", "X", "%",
                                 "7", "8", "9", "<-",
                                 "4", "5", "6", "-",
                                 "1", "2","3","+",
@@ -75,13 +76,13 @@ public class Frame {
         frame.setVisible(true);
     }
     public String opeStockMethod(){
-        if (opeStock == "+") {
+        if (Objects.equals(opeStock, "+")) {
            return String.valueOf(ope.addition(Double.parseDouble(stockage)));
-        } else if (opeStock == "-") {
+        } else if (Objects.equals(opeStock, "-")) {
             return String.valueOf(ope.subtraction(Double.parseDouble(stockage)));
-        } else if (opeStock == "*"){
+        } else if (Objects.equals(opeStock, "X")){
             return String.valueOf(ope.multiplication(Double.parseDouble(stockage)));
-        } else if (opeStock == "/"){
+        } else if (Objects.equals(opeStock, "%")){
             return String.valueOf(ope.division(Double.parseDouble(stockage)));
         } else {
             ope.setResult(Double.parseDouble(stockage));
@@ -93,9 +94,10 @@ public class Frame {
     public void reset()
     {
         history = " ";
-        opeStock = "";
+        opeStock = null;
         ope.setResult(0);
         stockage = " ";
+        lastOpe = null;
     }
     
     String history = " ";
@@ -115,47 +117,97 @@ public class Frame {
             case "7":
             case "8":
             case "9":
-                if (opeStock == "=") reset();
+                if (Objects.equals(opeStock, "=")) reset();
                 stockage += digits;
                 label.setText(stockage);
                 historic.setText(history);
                 break;
             case "+":
+                if (Objects.equals(stockage, " "))
+                {
+                    opeStock = digits;
+                    history = history.substring(0, history.length() - 1) + digits;
+                    historic.setText(history);
+                    return;
+                }
+
                 result = opeStockMethod();
                 history += stockage+digits;
                 historic.setText(history);
                 label.setText(result);
+                lastDigit = stockage;
                 stockage = " ";
                 opeStock = digits;
                 break;
             case "-":
+                if (Objects.equals(stockage, " "))
+                {
+                    opeStock = digits;
+                    history = history.substring(0, history.length() - 1) + digits;
+                    historic.setText(history);
+                    return;
+                }
+
                 result = opeStockMethod();
                 history += stockage+digits;
                 historic.setText(history);
                 label.setText(result);
+                lastDigit = stockage;
                 stockage = " ";
                 opeStock = digits;
                 break;
-            case "*":
+            case "X":
+                if (Objects.equals(stockage, " "))
+                {
+                    opeStock = digits;
+                    history = history.substring(0, history.length() - 1) + digits;
+                    historic.setText(history);
+                    return;
+                }
+
                 history += stockage+digits;
                 historic.setText(history);
                 result = opeStockMethod();
                 label.setText(result);
+                lastDigit = stockage;
                 stockage = " ";
                 opeStock = digits;
                 break;
-            case "/":
+            case "%":
+                if (Objects.equals(stockage, " "))
+                {
+                    opeStock = digits;
+                    history = history.substring(0, history.length() - 1) + digits;
+                    historic.setText(history);
+                    return;
+                }
+
                 history += stockage+digits;
                 historic.setText(history);
                 result = opeStockMethod();
                 label.setText(result);
+                lastDigit = stockage;
                 stockage = " ";
                 opeStock = digits;
                 break;
             case "=":
-                
-                if (opeStock == "=")
+                if (Objects.equals(stockage, " "))
                 {
+                    stockage = String.valueOf(ope.result);
+                    history += stockage + "=";
+                    historic.setText(history);
+                    result = opeStockMethod();
+                    label.setText(result);
+                    lastOpe = opeStock;
+                    lastDigit = stockage;
+                    opeStock = "=";
+                    stockage = result;
+                    return;
+                }
+                
+                if (Objects.equals(opeStock, "="))
+                {
+                    if (lastOpe == null) return;
                     String lastResult = stockage;
                     opeStock = lastOpe;
                     stockage = lastDigit;
@@ -165,6 +217,17 @@ public class Frame {
                     label.setText(result);
                     opeStock = "=";
                     stockage = result;
+                    return;
+                }
+                if (opeStock == null)
+                {
+                    System.out.println("empty");
+                    history += stockage + "=";
+                    historic.setText(history);
+                    lastOpe = opeStock;
+                    lastDigit = stockage;
+                    opeStock = "=";
+                    return;
                 }
                 else
                 {
